@@ -1,0 +1,7 @@
+spring:
+ thymeleaf:
+  prefix: classpath:/templates/ 
+  suffix: .html
+
+chatgpt:
+  api-key: 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
