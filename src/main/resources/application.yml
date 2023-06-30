@@ -3,5 +3,5 @@ spring:
   prefix: classpath:/templates/ 
   suffix: .html
 
-chatgpt:
-  api-key: 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
+#chatgpt:
+  #api-key: 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
