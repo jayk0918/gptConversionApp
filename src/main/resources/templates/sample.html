@@ -2,11 +2,44 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>TestPage</title>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
+
 <body>
  
-<h1>message</h1>
+<input type="text" id = "question">
+<button type = "button" id = "requestAnswer">전송</button>
  
 </body>
+
+<script th:inline="javascript">
+	
+	$(document).ready(function(){
+		$('#requestAnswer').on("click", function(){
+			let question = $('#question').val();
+			console.log(question);
+			$.ajax({
+				url : "/api/v1/chat-gpt",
+				type : "post",
+				data : JSON.stringify(question),
+				contentType : "application/json",
+				dataType : "json",
+				success : function(result){
+					console.log(result);
+				},
+				error : function(XHR, status, error) {
+					console.log(status + ' : ' + error);
+				}
+			})
+		});
+		
+	})
+	
+	
+	
+	
+	
+</script>
+
 </html>
