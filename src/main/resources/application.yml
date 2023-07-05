@@ -2,6 +2,3 @@ spring:
  thymeleaf:
   prefix: classpath:/templates/ 
   suffix: .html
-
-chatgpt:
-  api-key: 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
