@@ -6,28 +6,42 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayk0918.www.config.OpenAIProperties;
 import com.jayk0918.www.record.ChatGptRequest;
 import com.jayk0918.www.record.ChatGptResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService{
 	
+	private final static Logger log = LoggerFactory.getLogger(ChatService.class);
+	
+	@Autowired
+	private OpenAIProperties openAIProperties;
+	
+	// TO-DO : HttpRequest Method 분리
     public String getChatResponse(String prompt) throws IOException, InterruptedException {
         // ChatGPT 에게 질문을 던집니다.
     	ObjectMapper mapper = new ObjectMapper();
         ChatGptRequest chatGptRequest = new ChatGptRequest("text-davinci-001", prompt, 1, 100);
         String input = mapper.writeValueAsString(chatGptRequest);
-
+        
+        log.info(openAIProperties.getKeys());
+        
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://api.openai.com/v1/completions"))
             .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer <GPT CODE>")
+            .header("Authorization", "Bearer " + openAIProperties.getKeys())
             .POST(HttpRequest.BodyPublishers.ofString(input))
             .build();
 
@@ -37,13 +51,13 @@ public class ChatService{
         if (response.statusCode() == 200) {
             ChatGptResponse chatGptResponse = mapper.readValue(response.body(), ChatGptResponse.class);
             String answer = chatGptResponse.choices()[chatGptResponse.choices().length-1].text();
+            // TO-DO : StringUtil 변환
             if (!answer.isEmpty()) {
-                System.out.println(answer.replace("\n", "").trim());
+            	log.info(answer.replace("\n", "").trim());
             }
             return answer;
         } else {
-            System.out.println(response.statusCode());
-            System.out.println(response.body());
+        	log.info(response.body());
             return response.body();
         }
 		
