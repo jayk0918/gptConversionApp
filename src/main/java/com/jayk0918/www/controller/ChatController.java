@@ -2,8 +2,6 @@ package com.jayk0918.www.controller;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,8 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/v1/chat-gpt")
 public class ChatController {
 	
-    private final static Logger log = LoggerFactory.getLogger(ChatController.class);
-
 	@Autowired
     private ChatService chatService;
 	
