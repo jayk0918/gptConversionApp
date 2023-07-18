@@ -24,9 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class PapagoService {
 	
-	@Autowired
-	private PapagoProperties papagoProperties;
+	private final PapagoProperties papagoProperties;
 	
+	public PapagoService(PapagoProperties papagoProperties) {
+		this.papagoProperties = papagoProperties;
+	}
+
 	//TO-DO : Method 분리 예정
 	public String doTranslate(String question) {
         String apiURL = "https://openapi.naver.com/v1/papago/n2mt";

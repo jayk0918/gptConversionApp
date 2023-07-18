@@ -8,4 +8,5 @@ public record ChatGptResponse(
 	    ChatGptResponseChoice[] choices,
 	    ChatGptResponseUsage usage
 	) {
-	}
+	
+}

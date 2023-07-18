@@ -22,8 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ChatService{
 	
-	@Autowired
-	private OpenAIProperties openAIProperties;
+	private final OpenAIProperties openAIProperties;
 	
 	// TO-DO : HttpRequest Method 분리
     public String getChatResponse(String prompt) throws IOException, InterruptedException {

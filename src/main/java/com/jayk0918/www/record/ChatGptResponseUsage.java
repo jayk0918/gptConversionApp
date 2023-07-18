@@ -5,4 +5,5 @@ public record ChatGptResponseUsage(
 	    int completion_tokens,
 	    int total_tokens
 	) {
-	}
+	
+}

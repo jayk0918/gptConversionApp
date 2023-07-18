@@ -20,11 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/v1/chat-gpt")
 public class ChatController {
 	
-	@Autowired
-    private ChatService chatService;
+    private final ChatService chatService;
 	
-	@Autowired
-	private PapagoService papagoService;
+	private final PapagoService papagoService;
 	
     //chat-gpt 와 간단한 채팅 서비스 소스
     @PostMapping("")
