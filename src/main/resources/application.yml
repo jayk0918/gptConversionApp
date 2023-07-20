@@ -3,15 +3,6 @@ spring:
   prefix: classpath:/templates/ 
   suffix: .html
   
-  
 logging:
  level:
   root: info
-
-
-openai:
- keys: ${OPENAI_API_KEYS}
-
-papagoclient:
-  id: ${PAPAGO_CLIENT_ID}
-  secret: ${PAPAGO_CLIENT_SECRET}

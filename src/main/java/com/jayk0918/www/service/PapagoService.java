@@ -13,10 +13,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.jayk0918.www.config.PapagoProperties;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,12 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class PapagoService {
 	
-	private final PapagoProperties papagoProperties;
+	private final String papagoClientId = System.getProperty("PapagoClientId");
+	private final String papagoClientSecret = System.getProperty("PapagoClientSecret");
 	
-	public PapagoService(PapagoProperties papagoProperties) {
-		this.papagoProperties = papagoProperties;
-	}
-
 	//TO-DO : Method 분리 예정
 	public String doTranslate(String question) {
         String apiURL = "https://openapi.naver.com/v1/papago/n2mt";
@@ -41,8 +35,8 @@ public class PapagoService {
         }
 
         Map<String, String> requestHeaders = new HashMap<>();
-        requestHeaders.put("X-Naver-Client-Id", papagoProperties.getId());
-        requestHeaders.put("X-Naver-Client-Secret", papagoProperties.getSecret());
+        requestHeaders.put("X-Naver-Client-Id", papagoClientId);
+        requestHeaders.put("X-Naver-Client-Secret", papagoClientSecret);
 
         String responseBody = post(apiURL, requestHeaders, question);
 

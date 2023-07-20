@@ -6,23 +6,19 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayk0918.www.config.OpenAIProperties;
 import com.jayk0918.www.record.ChatGptRequest;
 import com.jayk0918.www.record.ChatGptResponse;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ChatService{
 	
-	private final OpenAIProperties openAIProperties;
+	private final String openAiKeys = System.getProperty("OpenAIKeys"); 
 	
 	// TO-DO : HttpRequest Method 분리
     public String getChatResponse(String prompt) throws IOException, InterruptedException {
@@ -31,12 +27,12 @@ public class ChatService{
         ChatGptRequest chatGptRequest = new ChatGptRequest("text-davinci-001", prompt, 1, 100);
         String input = mapper.writeValueAsString(chatGptRequest);
         
-        log.info(openAIProperties.getKeys());
+        log.info(System.getProperty("OpenAIKeys"));
         
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create("https://api.openai.com/v1/completions"))
             .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer " + openAIProperties.getKeys())
+            .header("Authorization", "Bearer " + openAiKeys)
             .POST(HttpRequest.BodyPublishers.ofString(input))
             .build();
 
@@ -55,6 +51,5 @@ public class ChatService{
         	log.info(response.body());
             return response.body();
         }
-		
     }
 }
