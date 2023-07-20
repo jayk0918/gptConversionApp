@@ -15,20 +15,24 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class PapagoService {
-	
+@RequiredArgsConstructor
+public class PapagoTranslateService {
 	private final String papagoClientId = System.getProperty("PapagoClientId");
 	private final String papagoClientSecret = System.getProperty("PapagoClientSecret");
+	private final String apiURL = "https://openapi.naver.com/v1/papago/n2mt";
 	
-	//TO-DO : Method 분리 예정
+	private final PapagoDetectService papagoDetectService;
+	
+	
 	public String doTranslate(String question) {
-        String apiURL = "https://openapi.naver.com/v1/papago/n2mt";
         try {
-            question = URLEncoder.encode(question, "ISO-8859-1");
+            question = URLEncoder.encode(question, "UTF-8");
             log.info(question);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("인코딩 실패", e);
@@ -40,13 +44,16 @@ public class PapagoService {
 
         String responseBody = post(apiURL, requestHeaders, question);
 
-        System.out.println(responseBody);
+        log.info(responseBody);
         return responseBody;
 	}
-
-	private String post(String apiUrl, Map<String, String> requestHeaders, String text){
+	
+	
+	private String post(String apiUrl, Map<String, String> requestHeaders, String question){
 	    HttpURLConnection con = connect(apiUrl);
-	    String postParams = "source=ko&target=en&text=" + text; //원본언어: 한국어 (ko) -> 목적언어: 영어 (en)
+	    String postParams = "source=ko&target=en&text=" + question; //원본언어: <언어 감지> -> 목적언어: 영어 (en)
+	    log.info(postParams);
+	    
 	    try {
 	        con.setRequestMethod("POST");
 	        for(Map.Entry<String, String> header :requestHeaders.entrySet()) {

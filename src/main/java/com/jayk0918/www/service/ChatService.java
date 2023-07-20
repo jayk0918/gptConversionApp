@@ -19,12 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 public class ChatService{
 	
 	private final String openAiKeys = System.getProperty("OpenAIKeys"); 
+	private final String apiModel = "text-davinci-001";
 	
 	// TO-DO : HttpRequest Method 분리
     public String getChatResponse(String prompt) throws IOException, InterruptedException {
         // ChatGPT 에게 질문을 던집니다.
     	ObjectMapper mapper = new ObjectMapper();
-        ChatGptRequest chatGptRequest = new ChatGptRequest("text-davinci-001", prompt, 1, 100);
+        ChatGptRequest chatGptRequest = new ChatGptRequest(apiModel, prompt, 1, 100);
         String input = mapper.writeValueAsString(chatGptRequest);
         
         log.info(System.getProperty("OpenAIKeys"));
