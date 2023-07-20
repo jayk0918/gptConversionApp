@@ -1,22 +1,55 @@
 package com.jayk0918.www;
 
+import java.io.IOException;
+
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.jayk0918.www.service.ChatService;
+import com.jayk0918.www.service.PapagoDetectService;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 class GptConversionAppApplicationTests {
 	
+	@Autowired
+	ChatService chatService;
+	
+	@Autowired
+	PapagoDetectService papagoDetectService;
+	
 	@Test
-	public void contextLoads() throws Exception {
-		log.info(System.getProperty("OpenAIKeys"));
-		log.info(System.getProperty("PapagoClientId"));
-		log.info(System.getProperty("PapagoClientSecret"));
+	@DisplayName("Response test")
+	void responseTest() {
+		final String testInput = "hello";
+		
+		String result;
+		try {
+			result = chatService.getChatResponse(testInput);
+			log.info(result);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
+	
+	@Test
+	@DisplayName("Detection test")
+	void detectionTest() {
+		final String testInput = "hello";
+		String result = papagoDetectService.detectLanguange(testInput);
+		log.info(result);
+	}
+	
+	
+	
 
 }
