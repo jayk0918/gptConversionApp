@@ -129,6 +129,3 @@ ChatGptRequest chatGptRequest = new ChatGptRequest(apiModel, question, {float te
 ...
 - (float) temperature : chatgpt의 답변 척도, 숫자가 낮을 수록 정형화된 응답이 출력되고 높을 수록 고도화 된 답변이 출력됨. 0~1까지 설정 가능(소수점 첫째자리까지 가능)
 - (int) max_token : 답변 글자수 제한, 100까지 출력 가능
-		
-
-
