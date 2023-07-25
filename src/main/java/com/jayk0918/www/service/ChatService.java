@@ -8,6 +8,8 @@ import java.net.http.HttpResponse;
 
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayk0918.www.record.ChatGptRequest;
 import com.jayk0918.www.record.ChatGptResponse;
@@ -20,30 +22,36 @@ public class ChatService{
 	
 	private final String openAiKeys = System.getProperty("OpenAIKeys"); 
 	private final String apiModel = "text-davinci-001";
+	private final String openAiUri = "https://api.openai.com/v1/completions";
 	
 	// TO-DO : HttpRequest Method 분리
-    public String getChatResponse(String prompt) throws IOException, InterruptedException {
+    public String getChatResponse(String prompt){
         // ChatGPT 에게 질문을 던집니다.
     	ObjectMapper mapper = new ObjectMapper();
         ChatGptRequest chatGptRequest = new ChatGptRequest(apiModel, prompt, 1, 100);
-        String input = mapper.writeValueAsString(chatGptRequest);
-        
-        log.info(System.getProperty("OpenAIKeys"));
-        
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://api.openai.com/v1/completions"))
-            .header("Content-Type", "application/json")
-            .header("Authorization", "Bearer " + openAiKeys)
-            .POST(HttpRequest.BodyPublishers.ofString(input))
-            .build();
-
-        HttpClient client = HttpClient.newHttpClient();
-        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
+        String input = "";
+		try {
+			input = mapper.writeValueAsString(chatGptRequest);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		// httpRequest
+		HttpResponse<String> response = doHttpRequest(input, openAiUri, openAiKeys);
+		
+		// response에 따른 처리
         if (response.statusCode() == 200) {
-            ChatGptResponse chatGptResponse = mapper.readValue(response.body(), ChatGptResponse.class);
+            ChatGptResponse chatGptResponse = null;
+			try {
+				chatGptResponse = mapper.readValue(response.body(), ChatGptResponse.class);
+			} catch (JsonMappingException e) {
+				e.printStackTrace();
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+			
+			// TO-DO : StringUtil 변환
             String answer = chatGptResponse.choices()[chatGptResponse.choices().length-1].text();
-            // TO-DO : StringUtil 변환
             if (!answer.isEmpty()) {
             	log.info(answer.replace("\n", "").trim());
             }
@@ -53,4 +61,28 @@ public class ChatService{
             return response.body();
         }
     }
+    
+    private static HttpResponse<String> doHttpRequest(String input, String openAiUri, String openAiKeys) {
+    	HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(openAiUri))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + openAiKeys)
+                .POST(HttpRequest.BodyPublishers.ofString(input))
+                .build();
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = null;
+            
+    		try {
+    			response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+    		return response;
+    }
+    
+    
+    
 }
