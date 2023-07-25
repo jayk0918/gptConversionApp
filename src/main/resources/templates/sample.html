@@ -10,6 +10,8 @@
  
 <input type="text" id = "question">
 <button type = "button" id = "requestAnswer">전송</button>
+
+<input type="hidden" id = "receivedAnswer">
  
 </body>
 
@@ -27,6 +29,8 @@
 				dataType : "text",
 				success : function(result){
 					console.log(result);
+					$("#receivedAnswer").attr("type", "text");
+					$("#receivedAnswer").val(result);
 				},
 				error : function(XHR, status, error) {
 					console.log(status + ' : ' + error);
