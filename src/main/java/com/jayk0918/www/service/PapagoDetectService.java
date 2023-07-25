@@ -13,6 +13,9 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +30,7 @@ public class PapagoDetectService {
 	public String detectLanguange(String question) {
 		String query;
 		try {
-			query = URLEncoder.encode(question, "ISO-8859-1");
+			query = URLEncoder.encode(question, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException("인코딩 실패", e);
 		}
@@ -37,9 +40,19 @@ public class PapagoDetectService {
 		requestHeaders.put("X-Naver-Client-Secret", papagoClientSecret);
 
 		String responseBody = post(apiURL, requestHeaders, query);
-		
 		log.info(responseBody);
-		return responseBody;
+		
+		String result = "";
+		// JSONParser로 JSONObject로 변환
+        JSONParser parser = new JSONParser();
+        try {
+			JSONObject jsonObject = (JSONObject) parser.parse(responseBody);
+			result = (String) jsonObject.get("langCode");
+			log.info(result);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 
 	private static String post(String apiUrl, Map<String, String> requestHeaders, String text) {

@@ -13,9 +13,11 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,10 +29,7 @@ public class PapagoTranslateService {
 	private final String papagoClientSecret = System.getProperty("PapagoClientSecret");
 	private final String apiURL = "https://openapi.naver.com/v1/papago/n2mt";
 	
-	private final PapagoDetectService papagoDetectService;
-	
-	
-	public String doTranslate(String question) {
+	public String doTranslate(String question, String detectLanguage, boolean receivedAnswer) {
         try {
             question = URLEncoder.encode(question, "UTF-8");
             log.info(question);
@@ -41,17 +40,34 @@ public class PapagoTranslateService {
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put("X-Naver-Client-Id", papagoClientId);
         requestHeaders.put("X-Naver-Client-Secret", papagoClientSecret);
-
-        String responseBody = post(apiURL, requestHeaders, question);
-
+        
+        String responseBody = post(apiURL, requestHeaders, question, detectLanguage, receivedAnswer);
         log.info(responseBody);
-        return responseBody;
+        
+        String result = "";
+        // JSONParser로 JSONObject로 변환
+        JSONParser parser = new JSONParser();
+        try {
+        	JSONObject jsonObject = (JSONObject) parser.parse(responseBody);
+            JSONObject resultObject = (JSONObject) ((JSONObject) jsonObject.get("message")).get("result");
+            result = (String) resultObject.get("translatedText");
+            log.info(result);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+        return result;
 	}
 	
 	
-	private String post(String apiUrl, Map<String, String> requestHeaders, String question){
+	private String post(String apiUrl, Map<String, String> requestHeaders, String question, String detectLanguage, boolean receivedAnswer){
 	    HttpURLConnection con = connect(apiUrl);
-	    String postParams = "source=ko&target=en&text=" + question; //원본언어: <언어 감지> -> 목적언어: 영어 (en)
+	    String postParams = "";
+	    if(receivedAnswer == false) {
+	    	postParams = "source="+detectLanguage+"&target=en&text="+question; //원본언어: <언어 감지> -> 목적언어: 영어 (en)
+	    }else {
+	    	postParams = "source=en&target="+detectLanguage+"&text="+question; //원본언어: <언어 감지> -> 목적언어: 영어 (en)
+	    }
+	    
 	    log.info(postParams);
 	    
 	    try {

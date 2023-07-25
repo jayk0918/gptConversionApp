@@ -29,16 +29,9 @@ class GptConversionAppApplicationTests {
 	@DisplayName("Response test")
 	void responseTest() {
 		final String testInput = "hello";
-		
-		String result;
-		try {
-			result = chatService.getChatResponse(testInput);
-			log.info(result);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		String result = "";
+		result = chatService.getChatResponse(testInput);
+		log.info(result);
 	}
 	
 	@Test
