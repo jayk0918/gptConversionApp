@@ -53,7 +53,7 @@ public class PapagoTranslateService {
             result = (String) resultObject.get("translatedText");
             log.info(result);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.info(e.toString());
 		}
         return result;
 	}

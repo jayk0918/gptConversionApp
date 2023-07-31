@@ -50,7 +50,7 @@ public class PapagoDetectService {
 			result = (String) jsonObject.get("langCode");
 			log.info(result);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.info(e.toString());
 		}
 		return result;
 	}

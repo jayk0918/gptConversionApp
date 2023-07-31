@@ -25,15 +25,15 @@ public class ChatService{
 	private final String openAiUri = "https://api.openai.com/v1/completions";
 	
 	// TO-DO : HttpRequest Method 분리
-    public String getChatResponse(String prompt){
+    public String getChatResponse(String question){
         // ChatGPT 에게 질문을 던집니다.
     	ObjectMapper mapper = new ObjectMapper();
-        ChatGptRequest chatGptRequest = new ChatGptRequest(apiModel, prompt, 1, 100);
+        ChatGptRequest chatGptRequest = new ChatGptRequest(apiModel, question, 1, 100);
         String input = "";
 		try {
 			input = mapper.writeValueAsString(chatGptRequest);
 		} catch (JsonProcessingException e) {
-			e.printStackTrace();
+			log.info(e.toString());
 		}
 		
 		// httpRequest
@@ -45,9 +45,9 @@ public class ChatService{
 			try {
 				chatGptResponse = mapper.readValue(response.body(), ChatGptResponse.class);
 			} catch (JsonMappingException e) {
-				e.printStackTrace();
+				log.info(e.toString());
 			} catch (JsonProcessingException e) {
-				e.printStackTrace();
+				log.info(e.toString());
 			}
 			
 			// TO-DO : StringUtil 변환
@@ -76,9 +76,9 @@ public class ChatService{
     		try {
     			response = client.send(request, HttpResponse.BodyHandlers.ofString());
     		} catch (IOException e) {
-    			e.printStackTrace();
+    			log.info(e.toString());
     		} catch (InterruptedException e) {
-    			e.printStackTrace();
+    			log.info(e.toString());
     		}
     		return response;
     }
