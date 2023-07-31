@@ -55,7 +55,7 @@ public class PapagoDetectService {
 		return result;
 	}
 
-	private static String post(String apiUrl, Map<String, String> requestHeaders, String text) {
+	private String post(String apiUrl, Map<String, String> requestHeaders, String text) {
 		HttpURLConnection con = connect(apiUrl);
 		String postParams = "query=" + text; // 원본언어: 한국어 (ko) -> 목적언어: 영어 (en)
 		try {
@@ -83,7 +83,7 @@ public class PapagoDetectService {
 		}
 	}
 
-	private static HttpURLConnection connect(String apiUrl) {
+	private HttpURLConnection connect(String apiUrl) {
 		try {
 			URL url = new URL(apiUrl);
 			return (HttpURLConnection) url.openConnection();
@@ -94,7 +94,7 @@ public class PapagoDetectService {
 		}
 	}
 
-	private static String readBody(InputStream body) {
+	private String readBody(InputStream body) {
 		InputStreamReader streamReader = new InputStreamReader(body);
 
 		try (BufferedReader lineReader = new BufferedReader(streamReader)) {
