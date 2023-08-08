@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ChatService{
 	
 	private final String openAiKeys = System.getProperty("OpenAIKeys"); 
-	private final String apiModel = "text-davinci-001";
+	private final String apiModel = "text-davinci-003";
 	private final String openAiUri = "https://api.openai.com/v1/completions";
 	
 	private final PapagoTranslateService papagoTranslateService;
