@@ -39,7 +39,7 @@ public class PapagoDetectService {
 		requestHeaders.put("X-Naver-Client-Id", papagoClientId);
 		requestHeaders.put("X-Naver-Client-Secret", papagoClientSecret);
 
-		String responseBody = post(apiURL, requestHeaders, query);
+		String responseBody = getLanguageCode(apiURL, requestHeaders, query);
 		log.info(responseBody);
 		
 		String result = "";
@@ -55,7 +55,7 @@ public class PapagoDetectService {
 		return result;
 	}
 
-	private String post(String apiUrl, Map<String, String> requestHeaders, String text) {
+	private String getLanguageCode(String apiUrl, Map<String, String> requestHeaders, String text) {
 		HttpURLConnection con = connect(apiUrl);
 		String postParams = "query=" + text; // 원본언어: 한국어 (ko) -> 목적언어: 영어 (en)
 		try {

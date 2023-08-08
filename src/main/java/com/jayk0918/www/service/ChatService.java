@@ -14,17 +14,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayk0918.www.record.ChatGptRequest;
 import com.jayk0918.www.record.ChatGptResponse;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ChatService{
 	
 	private final String openAiKeys = System.getProperty("OpenAIKeys"); 
 	private final String apiModel = "text-davinci-001";
 	private final String openAiUri = "https://api.openai.com/v1/completions";
 	
-	// TO-DO : HttpRequest Method 분리
+	private final PapagoTranslateService papagoTranslateService;
+	
     public String getChatResponse(String question){
         // ChatGPT 에게 질문을 던집니다.
     	ObjectMapper mapper = new ObjectMapper();
@@ -62,7 +65,7 @@ public class ChatService{
         }
     }
     
-    private static HttpResponse<String> doHttpRequest(String input, String openAiUri, String openAiKeys) {
+    private HttpResponse<String> doHttpRequest(String input, String openAiUri, String openAiKeys) {
     	HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(openAiUri))
                 .header("Content-Type", "application/json")
@@ -82,6 +85,25 @@ public class ChatService{
     		}
     		return response;
     }
+    
+    public String checkResponse(String question, String detectLanguage) {
+		String answer = "";
+		//openAi 응답여부(번역 source 파라미터 결정)
+    	boolean receivedAnswer = false;
+    	question = papagoTranslateService.doTranslate(question, detectLanguage, receivedAnswer);
+    	log.info(question);
+    	
+    	answer = getChatResponse(question);
+    	
+    	//openAi 응답을 받을 시 boolean 변경
+    	if(answer != null) {
+    		receivedAnswer = true;
+    	}
+    	answer = papagoTranslateService.doTranslate(answer, detectLanguage, receivedAnswer);
+    	log.info(answer);
+    	
+    	return answer;
+	}
     
     
     

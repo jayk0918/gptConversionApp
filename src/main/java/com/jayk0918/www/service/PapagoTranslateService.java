@@ -41,7 +41,7 @@ public class PapagoTranslateService {
         requestHeaders.put("X-Naver-Client-Id", papagoClientId);
         requestHeaders.put("X-Naver-Client-Secret", papagoClientSecret);
         
-        String responseBody = post(apiURL, requestHeaders, question, detectLanguage, receivedAnswer);
+        String responseBody = translateQuestion(apiURL, requestHeaders, question, detectLanguage, receivedAnswer);
         log.info(responseBody);
         
         String result = "";
@@ -58,16 +58,10 @@ public class PapagoTranslateService {
         return result;
 	}
 	
-	
-	private String post(String apiUrl, Map<String, String> requestHeaders, String question, String detectLanguage, boolean receivedAnswer){
+	private String translateQuestion(String apiUrl, Map<String, String> requestHeaders, String question, String detectLanguage, boolean receivedAnswer){
 	    HttpURLConnection con = connect(apiUrl);
-	    String postParams = "";
-	    if(receivedAnswer == false) {
-	    	postParams = "source="+detectLanguage+"&target=en&text="+question; //원본언어: <언어 감지> -> 목적언어: 영어 (en)
-	    }else {
-	    	postParams = "source=en&target="+detectLanguage+"&text="+question; //원본언어: <언어 감지> -> 목적언어: 영어 (en)
-	    }
 	    
+	    String postParams = defineParam(question, detectLanguage, receivedAnswer);
 	    log.info(postParams);
 	    
 	    try {
@@ -121,5 +115,17 @@ public class PapagoTranslateService {
 	    } catch (IOException e) {
 	        throw new RuntimeException("API 응답을 읽는데 실패했습니다.", e);
 	    }
+	}
+	
+	public String defineParam(String question, String detectLanguage, boolean receivedAnswer) {
+		String postParams = "";
+		
+		if(receivedAnswer == false) {
+	    	postParams = "source="+detectLanguage+"&target=en&text="+question; //원본언어: <언어 감지> -> 목적언어: 영어 (en)
+	    }else {
+	    	postParams = "source=en&target="+detectLanguage+"&text="+question; //원본언어: <언어 감지> -> 목적언어: 영어 (en)
+	    }
+		
+		return postParams;
 	}
 }
