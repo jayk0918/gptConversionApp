@@ -6,10 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jayk0918.www.service.ChatService;
+import com.jayk0918.www.service.DetectEnglishService;
 import com.jayk0918.www.service.PapagoDetectService;
-import com.jayk0918.www.service.PapagoTranslateService;
-import com.jayk0918.www.service.UtilService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,17 +20,17 @@ import lombok.extern.slf4j.Slf4j;
 public class ChatController {
 	
 	private final PapagoDetectService papagoDetectService;
-	private final UtilService utilService;
+	private final DetectEnglishService detectEnglishService;
 	
     //chat-gpt 와 간단한 채팅 서비스 소스
     @PostMapping("")
-    public String test(@RequestBody String question){
+    public String test(@RequestBody final String question){
     	log.info(question);
     	
     	//question 언어 감지 & 번역
-    	String detectLanguage = papagoDetectService.detectLanguange(question);
+    	final String detectLanguage = papagoDetectService.detectLanguange(question);
     	log.info(detectLanguage);
-    	String answer = utilService.detectEnglish(question, detectLanguage);
+    	final String answer = detectEnglishService.detectEnglish(question, detectLanguage);
         return answer;
     }
 }

@@ -1,16 +1,10 @@
 package com.jayk0918.www.service;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.json.simple.JSONObject;
@@ -25,11 +19,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class PapagoTranslateService {
+	
+	private final UtilService utilService;
+	
 	private final String papagoClientId = System.getProperty("PapagoClientId");
 	private final String papagoClientSecret = System.getProperty("PapagoClientSecret");
 	private final String apiURL = "https://openapi.naver.com/v1/papago/n2mt";
 	
-	public String doTranslate(String question, String detectLanguage, boolean receivedAnswer) {
+	public String doTranslate(String question, final String detectLanguage, boolean receivedAnswer) {
         try {
             question = URLEncoder.encode(question, "UTF-8");
             log.info(question);
@@ -37,17 +34,15 @@ public class PapagoTranslateService {
             throw new RuntimeException("인코딩 실패", e);
         }
 
-        Map<String, String> requestHeaders = new HashMap<>();
-        requestHeaders.put("X-Naver-Client-Id", papagoClientId);
-        requestHeaders.put("X-Naver-Client-Secret", papagoClientSecret);
+        Map<String, String> requestHeaders = utilService.setRequestHeader(papagoClientId, papagoClientSecret);
         
-        String responseBody = translateQuestion(apiURL, requestHeaders, question, detectLanguage, receivedAnswer);
+        final String responseBody = translateQuestion(apiURL, requestHeaders, question, detectLanguage, receivedAnswer);
         log.info(responseBody);
         
         String result = "";
-        // JSONParser로 JSONObject로 변환
-        JSONParser parser = new JSONParser();
         try {
+        	 // JSONParser로 JSONObject로 변환
+            JSONParser parser = new JSONParser();
         	JSONObject jsonObject = (JSONObject) parser.parse(responseBody);
             JSONObject resultObject = (JSONObject) ((JSONObject) jsonObject.get("message")).get("result");
             result = (String) resultObject.get("translatedText");
@@ -58,10 +53,10 @@ public class PapagoTranslateService {
         return result;
 	}
 	
-	private String translateQuestion(String apiUrl, Map<String, String> requestHeaders, String question, String detectLanguage, boolean receivedAnswer){
-	    HttpURLConnection con = connect(apiUrl);
+	private String translateQuestion(final String apiUrl, final Map<String, String> requestHeaders, final String question, final String detectLanguage, boolean receivedAnswer){
+	    HttpURLConnection con = utilService.connect(apiUrl);
 	    
-	    String postParams = defineParam(question, detectLanguage, receivedAnswer);
+	    final String postParams = defineParam(question, detectLanguage, receivedAnswer);
 	    log.info(postParams);
 	    
 	    try {
@@ -78,9 +73,9 @@ public class PapagoTranslateService {
 	
 	        int responseCode = con.getResponseCode();
 	        if (responseCode == HttpURLConnection.HTTP_OK) { // 정상 응답
-	            return readBody(con.getInputStream());
+	            return utilService.readBody(con.getInputStream());
 	        } else {  // 에러 응답
-	            return readBody(con.getErrorStream());
+	            return utilService.readBody(con.getErrorStream());
 	        }
 	    } catch (IOException e) {
 	        throw new RuntimeException("API 요청과 응답 실패", e);
@@ -89,43 +84,13 @@ public class PapagoTranslateService {
 	    }
 	}
 	
-	private HttpURLConnection connect(String apiUrl){
-	    try {
-	        URL url = new URL(apiUrl);
-	        return (HttpURLConnection)url.openConnection();
-	    } catch (MalformedURLException e) {
-	        throw new RuntimeException("API URL이 잘못되었습니다. : " + apiUrl, e);
-	    } catch (IOException e) {
-	        throw new RuntimeException("연결이 실패했습니다. : " + apiUrl, e);
-	    }
-	}
-	
-	private String readBody(InputStream body){
-	    InputStreamReader streamReader = new InputStreamReader(body);
-	
-	    try (BufferedReader lineReader = new BufferedReader(streamReader)) {
-	        StringBuilder responseBody = new StringBuilder();
-	
-	        String line;
-	        while ((line = lineReader.readLine()) != null) {
-	            responseBody.append(line);
-	        }
-	
-	        return responseBody.toString();
-	    } catch (IOException e) {
-	        throw new RuntimeException("API 응답을 읽는데 실패했습니다.", e);
-	    }
-	}
-	
-	public String defineParam(String question, String detectLanguage, boolean receivedAnswer) {
-		String postParams = "";
-		
+	public String defineParam(final String question, final String detectLanguage, boolean receivedAnswer) {
 		if(receivedAnswer == false) {
-	    	postParams = "source="+detectLanguage+"&target=en&text="+question; //원본언어: <언어 감지> -> 목적언어: 영어 (en)
+			String postParams = "source="+detectLanguage+"&target=en&text="+question; //원본언어: <언어 감지> -> 목적언어: 영어 (en)
+			return postParams;
 	    }else {
-	    	postParams = "source=en&target="+detectLanguage+"&text="+question; //원본언어: <언어 감지> -> 목적언어: 영어 (en)
+	    	String postParams = "source=en&target="+detectLanguage+"&text="+question; //원본언어: <언어 감지> -> 목적언어: 영어 (en)
+	    	return postParams;
 	    }
-		
-		return postParams;
 	}
 }

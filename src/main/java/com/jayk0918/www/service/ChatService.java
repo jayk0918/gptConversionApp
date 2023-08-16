@@ -1,9 +1,5 @@
 package com.jayk0918.www.service;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 import org.springframework.stereotype.Service;
@@ -22,11 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ChatService{
 	
+	private final UtilService utilService;
+	private final PapagoTranslateService papagoTranslateService;
+	
 	private final String openAiKeys = System.getProperty("OpenAIKeys"); 
 	private final String apiModel = "text-davinci-003";
 	private final String openAiUri = "https://api.openai.com/v1/completions";
-	
-	private final PapagoTranslateService papagoTranslateService;
 	
     public String getChatResponse(String question){
         // ChatGPT 에게 질문을 던집니다.
@@ -40,7 +37,7 @@ public class ChatService{
 		}
 		
 		// httpRequest
-		HttpResponse<String> response = doHttpRequest(input, openAiUri, openAiKeys);
+		HttpResponse<String> response = utilService.doHttpRequest(input, openAiUri, openAiKeys);
 		
 		// response에 따른 처리
         if (response.statusCode() == 200) {
@@ -54,7 +51,7 @@ public class ChatService{
 			}
 			
 			// TO-DO : StringUtil 변환
-            String answer = chatGptResponse.choices()[chatGptResponse.choices().length-1].text();
+            final String answer = chatGptResponse.choices()[chatGptResponse.choices().length-1].text();
             if (!answer.isEmpty()) {
             	log.info(answer.replace("\n", "").trim());
             }
@@ -65,44 +62,24 @@ public class ChatService{
         }
     }
     
-    private HttpResponse<String> doHttpRequest(String input, String openAiUri, String openAiKeys) {
-    	HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(openAiUri))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + openAiKeys)
-                .POST(HttpRequest.BodyPublishers.ofString(input))
-                .build();
-
-            HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> response = null;
-            
-    		try {
-    			response = client.send(request, HttpResponse.BodyHandlers.ofString());
-    		} catch (IOException e) {
-    			log.info(e.toString());
-    		} catch (InterruptedException e) {
-    			log.info(e.toString());
-    		}
-    		return response;
-    }
-    
-    public String checkResponse(String question, String detectLanguage) {
-		String answer = "";
+    public String checkResponse(final String question, final String detectLanguage) {
 		//openAi 응답여부(번역 source 파라미터 결정)
     	boolean receivedAnswer = false;
-    	question = papagoTranslateService.doTranslate(question, detectLanguage, receivedAnswer);
-    	log.info(question);
+    	final String translatedQuestion = papagoTranslateService.doTranslate(question, detectLanguage, receivedAnswer);
+    	log.info(translatedQuestion);
     	
-    	answer = getChatResponse(question);
+    	final String respondedAnswer = getChatResponse(translatedQuestion);
+    	log.info(respondedAnswer);
     	
     	//openAi 응답을 받을 시 boolean 변경
-    	if(answer != null) {
+    	if(respondedAnswer != null) {
     		receivedAnswer = true;
     	}
-    	answer = papagoTranslateService.doTranslate(answer, detectLanguage, receivedAnswer);
-    	log.info(answer);
     	
-    	return answer;
+    	final String translatedAnswer = papagoTranslateService.doTranslate(respondedAnswer, detectLanguage, receivedAnswer);
+    	log.info(translatedAnswer);
+    	
+    	return translatedAnswer;
 	}
     
     

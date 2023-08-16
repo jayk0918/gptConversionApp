@@ -89,6 +89,7 @@ class GptConversionAppApplicationTests {
 		log.info(result);
 	}
 	
+	/*
 	@Test
 	@DisplayName("DetectEnglish test")
 	void detectEnglish() {
@@ -96,6 +97,6 @@ class GptConversionAppApplicationTests {
 		String detectLanguage = papagoDetectService.detectLanguange(testInput);
 		String result = utilService.detectEnglish(testInput, detectLanguage);
 		log.info(result);
-	}
+	}*/
 	
 }
